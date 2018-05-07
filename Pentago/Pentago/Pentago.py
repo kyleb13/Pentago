@@ -1,65 +1,16 @@
-
+from PentagoBoard import PentagoBoard
+from PentagoTree import PentagoTree
+from PentagoTreeNode import PentagoTreeNode
 
 class Pentago:
 
-    def place(self, player, location = (0, 0)):
-        self.board[location[0]][location[1]] = player
-
-    def printBoard(self):
-        print("+-------+-------+")
-        for x in range(6):
-            line = "| "
-            for y in range(6):
-                line += self.board[x][y] + " "
-                if y==2 or y==5:
-                    line += "| "
-            print(line)
-            if x == 2 or x == 5:
-                print("+-------+-------+")
-
-    def boardFull(self):
-        for ls in self.board:
-            for el in ls:
-                if el == "-":
-                    return False
-        return True
-
-    def rotateSquare(self, square):
-        start = (0, 0)
-        end = (0, 0)
-        rows = [["", "", ""], ["", "", ""], ["", "", ""]]
-        #determine where the start and end points of the array are, based on square number
-        if square == 1:
-            end = (2,2)
-        elif square == 2:
-            start = (0,3)
-            end = (2,5)
-        elif square == 3:
-            start = (3,0)
-            end = (5,2)
-        else:
-            start = (3,3)
-            end = (5,5)
-        
-        ridx = 0
-        cidx = 0
-        for y in range(start[0], end[0] + 1): #copy the elements that are going to be flipped
-            for x in range(start[1], end[1] + 1):
-                rows[ridx][cidx] = str(self.board[y][x])
-                self.board[y][x] = "-"
-                cidx += 1
-            ridx += 1
-            cidx = 0
-        
-        ridx = 0
-        cidx = 0
-        for c in range(end[1], start[1] - 1, -1): #read rows of copy into columns of board, from last column to first
-            for d in range(start[0], end[0] + 1): #this essentially flips the board
-                self.board[d][c] = rows[ridx][cidx]
-                cidx += 1
-            ridx += 1
-            cidx = 0
-
+    def __init__(self):
+        self.board = PentagoBoard()
+        self.winner = ""
+        self.player = "w"
+        self.ai = "b"
+        self.currentTurn = ""
+        self.gameLoop()
 
     def gameOver(self):
         wcnt = 0
@@ -68,7 +19,7 @@ class Pentago:
             wcnt = 0
             bcnt = 0
             for b in range(0, 6):
-                char = self.board[a][b]
+                char = self.board.state[a][b]
                 wcnt = wcnt+1 if char == "w" else 0
                 bcnt = bcnt+1 if char == "b" else 0
                 if wcnt == 5 or bcnt == 5:
@@ -78,7 +29,7 @@ class Pentago:
             wcnt = 0
             bcnt = 0
             for c in range(0, 6):
-                char = self.board[c][d]
+                char = self.board.state[c][d]
                 wcnt = wcnt+1 if char == "w" else 0
                 bcnt = bcnt+1 if char == "b" else 0
                 if wcnt == 5 or bcnt == 5:
@@ -88,11 +39,11 @@ class Pentago:
             wcnt = 0
             bcnt = 0
             for f in range(0, 6):
-                char = self.board[f][f]
+                char = self.board.state[f][f]
                 if e==-1:
-                    char = self.board[f+1][f]
+                    char = self.board.state[f+1][f]
                 elif e == 1:
-                    char = self.board[f][f+1]
+                    char = self.board.state[f][f+1]
                 wcnt = wcnt+1 if char == "w" else 0
                 bcnt = bcnt+1 if char == "b" else 0
                 if wcnt == 5 or bcnt == 5:
@@ -104,11 +55,11 @@ class Pentago:
             wcnt = 0
             bcnt = 0
             for f in range(5, -1, -1):
-                char = self.board[5 - f][f]
+                char = self.board.state[5 - f][f]
                 if e==-1:
-                    char = self.board[6-f][f]
+                    char = self.board.state[6-f][f]
                 elif e == 1:
-                    char = self.board[5-f][f-1]
+                    char = self.board.state[5-f][f-1]
                 wcnt = wcnt+1 if char == "w" else 0
                 bcnt = bcnt+1 if char == "b" else 0
                 if wcnt == 5 or bcnt == 5:
@@ -145,13 +96,8 @@ class Pentago:
 
     def playerTurn(self):
         move = self.readMove(input("Enter Move: "))
-        self.place(self.player, (move[0], move[1]))
-        self.rotateSquare(int(move[2][0]))
-        if move[2][1] == "L":
-            #Rotate square only goes right, so
-            #rotate right 3 times to simulate a left
-            self.rotateSquare(int(move[2][0]))
-            self.rotateSquare(int(move[2][0]))
+        self.board.place(self.player, (move[0], move[1]))
+        self.board.rotateSquare(int(move[2][0]), move[2][1])
 
 
     def gameLoop(self):
@@ -168,8 +114,8 @@ class Pentago:
         self.currentTurn = "Player"
         if choice == "2":
             self.currentTurn = "AI"
-        while not(self.gameOver() or self.boardFull()):#while game isnt over and board isnt full
-            self.printBoard()
+        while not(self.gameOver() or self.board.boardFull()):#while game isnt over and board isnt full
+            self.board.printBoard()
             if self.currentTurn == "Player":
                 self.playerTurn()
                 self.currentTurn = "AI"
@@ -177,14 +123,6 @@ class Pentago:
                 print("AI not yet implemented")
                 self.currentTurn = "Player"
         print("%s wins!" % self.winner)
-
-    def __init__(self):
-        self.board = [["-" for x in range(6)] for y in range(6)]
-        self.winner = ""
-        self.player = "w"
-        self.ai = "b"
-        self.currentTurn = ""
-        self.gameLoop()
             
                 
 
@@ -192,7 +130,10 @@ class Pentago:
 
     
 if __name__ == "__main__":
-    game = Pentago()
+    #game = Pentago()
+    board = PentagoBoard()
+    tree = PentagoTree(board, "w")
+    tree.generateTree(2)
+    print()
 
-
-
+    
