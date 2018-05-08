@@ -22,6 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Pentago.py" />
+    <Compile Include="PentagoAi.py" />
     <Compile Include="PentagoBoard.py" />
     <Compile Include="PentagoTree.py" />
     <Compile Include="PentagoTreeNode.py" />

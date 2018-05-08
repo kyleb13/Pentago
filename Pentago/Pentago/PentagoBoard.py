@@ -11,6 +11,9 @@ class PentagoBoard:
     def place(self, player, location = (0, 0)):
         self.state[location[0]][location[1]] = player
 
+    def remove(self, location = (0,0)):
+        self.state[location[0]][location[1]] = "-"
+
     def printBoard(self):
         print("+-------+-------+")
         for x in range(6):

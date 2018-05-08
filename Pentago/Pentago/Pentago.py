@@ -126,14 +126,8 @@ class Pentago:
             
                 
 
-
-
     
 if __name__ == "__main__":
     #game = Pentago()
-    board = PentagoBoard()
-    tree = PentagoTree(board, "w")
-    tree.generateTree(2)
-    print()
-
+    tree = PentagoTree(PentagoBoard(), "w")
     
