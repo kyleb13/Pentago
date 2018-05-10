@@ -43,6 +43,8 @@ class PentagoBoard:
                     return False
         return True
 
+
+
     def rotateSquare(self, square, dir):
         if(self.squareEmpty(square)):
             return

@@ -1,9 +1,9 @@
 from PentagoBoard import PentagoBoard
 from PentagoTree import PentagoTree
 from PentagoTreeNode import PentagoTreeNode
+from PentagoAi import PentagoAi
 
 class Pentago:
-
     def __init__(self):
         self.board = PentagoBoard()
         self.winner = ""
@@ -69,7 +69,6 @@ class Pentago:
                     break
         return False
 
-
     def readMove(self, move):
         offsetx = 0
         offsety = 0
@@ -92,16 +91,19 @@ class Pentago:
             coordinates[1] = int(loc) - 7
         coordinates[0] += offsety
         coordinates[1] += offsetx
-        return (coordinates[0], coordinates[1], rotate)
+        return [self.player, (coordinates[0], coordinates[1]), rotate]
 
     def playerTurn(self):
-        move = self.readMove(input("Enter Move: "))
-        self.board.place(self.player, (move[0], move[1]))
-        self.board.rotateSquare(int(move[2][0]), move[2][1])
-
+        move = self.readMove(input("Enter Move: ").upper())
+        self.board.place(self.player, (move[1][0], move[1][1]))
+        if self.board.squareEmpty(int(move[2][0])):
+            move[2] = "0*"
+        else:
+            self.board.rotateSquare(int(move[2][0]), move[2][1])
+        return move
 
     def gameLoop(self):
-        self.player = input("Do you want (w)hite or (b)lack? ")
+        self.player = input("Do you want (w)hite or (b)lack? ").lower()
         while (self.player != "w" and self.player != "b"):
             print("Invalid input! Please try again.")
             self.player = input("Do you want (w)hite or (b)lack? ")
@@ -114,20 +116,21 @@ class Pentago:
         self.currentTurn = "Player"
         if choice == "2":
             self.currentTurn = "AI"
+        ai = PentagoAi(PentagoTree(self.board, self.ai), self.board, self.ai)
         while not(self.gameOver() or self.board.boardFull()):#while game isnt over and board isnt full
             self.board.printBoard()
             if self.currentTurn == "Player":
-                self.playerTurn()
+                playermove = self.playerTurn()
+                if not(ai.atLeafLevel):
+                    ai.processPlayerMove(playermove)
                 self.currentTurn = "AI"
             else:
-                print("AI not yet implemented")
+                if(ai.atLeafLevel):
+                    print("AI is thinking...")
+                    ai.setUp()
+                ai.makeMove()
                 self.currentTurn = "Player"
         print("%s wins!" % self.winner)
             
-                
-
-    
 if __name__ == "__main__":
-    #game = Pentago()
-    tree = PentagoTree(PentagoBoard(), "w")
-    
+    game = Pentago()

@@ -2,11 +2,11 @@ from PentagoBoard import PentagoBoard
 import sys
 
 class PentagoTreeNode:
-    def __init__(self, newParent = None, newMove: list = [], newOwner:str = "", newMinmaxVal = 0):
+    def __init__(self, newParent, newMove: list, newOwner:str, newMinmaxVal:int):
         self.parent = newParent
         if self.parent != None:
-            self.moves = [x for x in newParent.moves]
-            self.moves.append(newMove)
+            self.moves = newMove
+
         else:
             self.moves = []
         self.children = []
@@ -20,3 +20,6 @@ class PentagoTreeNode:
             return "b"
         else:
             return "w"
+
+    def setMinmax(self, val):
+        self.minmax = val
