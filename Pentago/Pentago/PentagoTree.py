@@ -163,22 +163,22 @@ class PentagoTree:
         total = 0
         for a in rows:
             if a>1:
-                total += a*2
+                total += a*a
             else:
                 total += a
         for b in cols:
             if b>1:
-                total += b*2
+                total += b*b
             else:
                 total += b
         for c in ldiags:
             if c>1:
-                total += c*2
+                total += c*c
             else:
                 total += c
         for d in rdiags:
             if d>1:
-                total += d*2
+                total += d*d
             else:
                 total += d
 
