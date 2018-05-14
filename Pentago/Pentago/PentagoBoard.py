@@ -46,7 +46,7 @@ class PentagoBoard:
 
 
     def rotateSquare(self, square, dir):
-        if(self.squareEmpty(square)):
+        if(self.squareEmpty(square) or dir == "*"):
             return
         start = self.squareToIdx(square)
         end = start[1]

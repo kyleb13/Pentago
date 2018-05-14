@@ -60,20 +60,8 @@ class PentagoTree:
                 for dir in self.rotatevals:#iterate over squares for rotating
                     i = dir[0]
                     el = dir[1]
-                    val = 0
                     notempty = not(board.squareEmpty(i))
-                    child = None
                     if notempty or emptycnt == 0:
-                        if depthcurrent == depthmax:
-                            board.place(node.owner, (y, x))
-                            if notempty: board.rotateSquare(i, el)
-                            val = self.stateValue(board)
-                            if notempty:
-                                rotate = "L"
-                                if el == "L":
-                                    rotate = "R"
-                                board.rotateSquare(int(i), rotate)
-                            board.remove((y, x))
                         if emptycnt == 0 and not(notempty):
                             emptycnt+=1
                             child = PentagoTreeNode(node, [node.owner,[y,x], "0*"], newowner, val)
@@ -101,7 +89,7 @@ class PentagoTree:
             node.setMinmax(min(valarr))
             
 
-    def stateValue(self, board:PentagoBoard):
+    def stateValue(self, board:PentagoBoard, turn):
         warr = []
         barr = []
         for r in range(0,6):
@@ -112,74 +100,108 @@ class PentagoTree:
                 elif char == "b":
                     barr.append((r,c))
 
-        rowcnt = [0,0,0,0,0,0]
-        colcnt = [0,0,0,0,0,0]
-        ldiagcnt = [0,0,0]
-        rdiagcnt = [0,0,0]
+        #rowcnt = [0,0,0,0,0,0]
+        #colcnt = [0,0,0,0,0,0]
+        #ldiagcnt = [0,0,0]
+        #rdiagcnt = [0,0,0]
+        adjbonus = 1
         for idx in warr:
-            add = self.adjacentMap[idx]
-            rowcnt[add[0]] += 1
-            colcnt[add[1]] += 1
-            for diag in add[2]:
-                if diag == "lm":
-                    ldiagcnt[0] += 1
-                elif diag == "lu":
-                    ldiagcnt[1] += 1
-                elif diag == "ll":
-                    ldiagcnt[2] += 1
-                elif diag == "rm":
-                    rdiagcnt[0] += 1
-                elif diag == "ru":
-                    rdiagcnt[1] += 1
-                elif diag == "rl":
-                    rdiagcnt[2] += 1
-        wcnt = self.getValFromCounts(rowcnt, colcnt, ldiagcnt, rdiagcnt)
+            #add = self.adjacentMap[idx]
+            #rowcnt[add[0]] += 1
+            #colcnt[add[1]] += 1
+            #for diag in add[2]:
+            #    if diag == "lm":
+            #        ldiagcnt[0] += 1
+            #    elif diag == "lu":
+            #        ldiagcnt[1] += 1
+            #    elif diag == "ll":
+            #        ldiagcnt[2] += 1
+            #    elif diag == "rm":
+            #        rdiagcnt[0] += 1
+            #    elif diag == "ru":
+            #        rdiagcnt[1] += 1
+            #    elif diag == "rl":
+            #        rdiagcnt[2] += 1
+            close = [(idx[0], idx[1]-1),(idx[0]-1, idx[1]-1),(idx[0]-1, idx[1]),(idx[0]-1, idx[1]+1),(idx[0], idx[1]+1),
+                     (idx[0]+1, idx[1]+1),(idx[0]+1, idx[1]),(idx[0]+1, idx[1]-1)]
+            for  val in close:
+                if val in warr:
+                    adjbonus += 1
+                if val in barr and turn == "w":
+                    adjbonus += 1
+            if self.rootState.squareEmpty(self.idxToSquare(idx)):
+                adjbonus -= 5
 
-        rowcnt = [0,0,0,0,0,0]
-        colcnt = [0,0,0,0,0,0]
-        ldiagcnt = [0,0,0]
-        rdiagcnt = [0,0,0]
+        wcnt = adjbonus
+        #rowcnt = [0,0,0,0,0,0]
+        #colcnt = [0,0,0,0,0,0]
+        #ldiagcnt = [0,0,0]
+        #rdiagcnt = [0,0,0]
+        adjbonus = 1
         for coord in barr:
-            add = self.adjacentMap[coord]
-            rowcnt[add[0]] -= 1
-            colcnt[add[1]] -= 1
-            for diag in add[2]:
-                if diag == "lm":
-                    ldiagcnt[0] -= 1
-                elif diag == "lu":
-                    ldiagcnt[1] -= 1
-                elif diag == "ll":
-                    ldiagcnt[2] -= 1
-                elif diag == "rm":
-                    rdiagcnt[0] -= 1
-                elif diag == "ru":
-                    rdiagcnt[1] -= 1
-                elif diag == "rl":
-                    rdiagcnt[2] -= 1
-        bcnt = self.getValFromCounts(rowcnt, colcnt, ldiagcnt, rdiagcnt)
-        return wcnt + bcnt
+            #add = self.adjacentMap[coord]
+            #rowcnt[add[0]] += 1
+            #colcnt[add[1]] += 1
+            #for diag in add[2]:
+            #    if diag == "lm":
+            #        ldiagcnt[0] += 1
+            #    elif diag == "lu":
+            #        ldiagcnt[1] += 1
+            #    elif diag == "ll":
+            #        ldiagcnt[2] += 1
+            #    elif diag == "rm":
+            #        rdiagcnt[0] += 1
+            #    elif diag == "ru":
+            #        rdiagcnt[1] += 1
+            #    elif diag == "rl":
+            #        rdiagcnt[2] += 1
+            close = [(coord[0], coord[1]-1),(coord[0]-1, coord[1]-1),(coord[0]-1, coord[1]),(coord[0]-1, coord[1]+1),(coord[0], coord[1]+1),
+                     (coord[0]+1, coord[1]+1),(coord[0]+1, coord[1]),(coord[0]+1, coord[1]-1)]
+            for  el in close:
+                if el in barr:
+                    adjbonus += 1
+                if el in warr and turn == "b":
+                    adjbonus += 1
+            if self.rootState.squareEmpty(self.idxToSquare(idx)):
+                adjbonus -= 5
+        bcnt = adjbonus
+        return wcnt - bcnt
+
+    def idxToSquare(self, idx):
+        square = 0
+        if idx[0]<=2 and idx[1] <=2:
+            square =1
+        elif idx[0]<=2 and idx[1] > 2:
+            square =2
+        elif idx[0]>2 and idx[1] <=2:
+            square =3
+        else:
+            square = 4
+        return square
 
     def getValFromCounts(self, rows, cols, ldiags, rdiags):
         total = 0
         for a in rows:
-            if a>1:
-                total += a*a
-            else:
-                total += a
+            total += a
         for b in cols:
-            if b>1:
-                total += b*b
-            else:
-                total += b
+            total += b
         for c in ldiags:
-            if c>1:
-                total += c*c
-            else:
-                total += c
+            total += c
         for d in rdiags:
-            if d>1:
-                total += d*d
-            else:
-                total += d
+            total += d
 
         return total
+
+    def treeSize(self):
+        current = None
+        cnt = 1
+        todo = []
+        todo.append(self.head)
+        while todo != []:
+            current = todo.pop(0)
+            if current.children == []:
+                break
+            else:
+                cnt+= len(current.children)
+                todo.extend(current.children)
+        return cnt

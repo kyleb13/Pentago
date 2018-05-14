@@ -17,7 +17,9 @@ class PentagoAi:
             self.current = self.tree.head
         self.tree.generateTree(2)
         self.tree.calculateMinmaxVals(self.tree.head)
-        print()
+        #print(self.tree.treeSize())
+        #self.prune(self.tree.head, self.tree.head.alpha, self.tree.head.beta)
+        #print(self.tree.treeSize())
         self.atLeafLevel = False
 
     def processPlayerMove(self, move):
@@ -44,4 +46,24 @@ class PentagoAi:
                 self.board.rotateSquare(int(move[2][0]), move[2][1])
                 if self.current.children == []:
                     self.atLeafLevel = True
-                return  
+                return
+
+    def prune(self, node:PentagoTreeNode, inalpha, inbeta):
+        if node.children == []:
+            return node.minmax
+        else:
+            node.alpha = inalpha
+            node.beta = inbeta
+            idx = 0
+            for child in node.children:
+                val = self.prune(child, node.alpha, node.beta)
+                if self.token == "w":
+                    node.alpha = val if val>node.alpha else node.alpha
+                else:
+                    node.beta = val if val<node.beta else node.beta
+                if node.alpha>node.beta and node.owner != self.token:
+                    node.children = node.children[0:idx + 1]
+                    break
+                idx += 1
+            return node.minmax
+
