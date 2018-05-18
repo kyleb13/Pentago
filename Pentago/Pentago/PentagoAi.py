@@ -16,10 +16,13 @@ class PentagoAi:
             self.tree = PentagoTree(self.board, self.token)
             self.current = self.tree.head
         self.tree.generateTree(2)
+        #print("Gen Done")
+        self.tree.initChildStateValues()
+        #print("State Values Calculated")
         self.tree.calculateMinmaxVals(self.tree.head)
-        #print(self.tree.treeSize())
-        #self.prune(self.tree.head, self.tree.head.alpha, self.tree.head.beta)
-        #print(self.tree.treeSize())
+        #print("Minmax's Calculated")
+        self.prune(self.tree.head, self.tree.head.alpha, self.tree.head.beta)
+        #print("Pruning Complete")
         self.atLeafLevel = False
 
     def processPlayerMove(self, move):
@@ -57,11 +60,11 @@ class PentagoAi:
             idx = 0
             for child in node.children:
                 val = self.prune(child, node.alpha, node.beta)
-                if self.token == "w":
+                if node.owner == "w":
                     node.alpha = val if val>node.alpha else node.alpha
                 else:
                     node.beta = val if val<node.beta else node.beta
-                if node.alpha>node.beta and node.owner != self.token:
+                if node.alpha>node.beta:
                     node.children = node.children[0:idx + 1]
                     break
                 idx += 1
