@@ -1,3 +1,5 @@
+#This class models a board for the game. Includes the functionality
+#for making moves
 
 class PentagoBoard:
 
@@ -7,15 +9,18 @@ class PentagoBoard:
         else:
             self.state = [[newState[y][x] for x in range(0, 6)] for y in range(0,6)]
 
-
+    #place a token on the board
     def place(self, player, location = (0, 0)):
         self.state[location[0]][location[1]] = player
-
+    
+    #remove a token from the board
     def remove(self, location = (0,0)):
         self.state[location[0]][location[1]] = "-"
 
-    def printBoard(self):
+    #print the current state of the board and write to the output file
+    def printBoard(self, out):
         print("+-------+-------+")
+        out.write("+-------+-------+\n")
         for x in range(6):
             line = "| "
             for y in range(6):
@@ -23,9 +28,12 @@ class PentagoBoard:
                 if y==2 or y==5:
                     line += "| "
             print(line)
+            out.write(line + "\n")
             if x == 2 or x == 5:
                 print("+-------+-------+")
-
+                out.write("+-------+-------+\n")
+    
+    #check if the board is full
     def boardFull(self):
         for ls in self.state:
             for el in ls:
@@ -33,6 +41,7 @@ class PentagoBoard:
                     return False
         return True
 
+    #Check if a particular square on the board is empty
     def squareEmpty(self, square)->bool:
         start = self.squareToIdx(square)
         end = start[1]
@@ -44,9 +53,9 @@ class PentagoBoard:
         return True
 
 
-
+    #rotate a particular square on the board left or right
     def rotateSquare(self, square, dir):
-        if(self.squareEmpty(square) or dir == "*"):
+        if(self.squareEmpty(square) or dir == "*"):#dont do anything if trying to rotate an empty square
             return
         start = self.squareToIdx(square)
         end = start[1]
@@ -81,11 +90,12 @@ class PentagoBoard:
                 cidx += 1
             ridx += 1
             cidx = 0
-
+    
+    #get the indexes of the start and end positions of a square, used by rotate function
     def squareToIdx(self, square):
         start = [0, 0]
         end = [0, 0]
-        #determine where the start and end points of the array are, based on square number
+        #determine where the start and end points of the square are, based on square number
         if square == 1:
             end = [2,2]
         elif square == 2:

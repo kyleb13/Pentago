@@ -1,3 +1,10 @@
+#Pentago, TCSS 435
+#By Kyle Beveridge
+#
+#This program simulates a game of pentago between
+#a human player and an AI player
+
+
 from PentagoBoard import PentagoBoard
 from PentagoTree import PentagoTree
 from PentagoTreeNode import PentagoTreeNode
@@ -12,6 +19,10 @@ class Pentago:
         self.currentTurn = ""
         self.gameLoop()
 
+    #Check to see if the game is over by checking all of the rows,
+    #columns, and diagonals for 5 in a row
+    #
+    #Returns True if a winner is found (and sets the self.winner var), False otherwise (self.winner is not set in this case)
     def gameOver(self):
         wcnt = 0
         bcnt = 0
@@ -69,6 +80,8 @@ class Pentago:
                     break
         return False
 
+    #convert a player move in the input format (ex "1/1 2R") to one the board
+    #understands (a token to place, and index to place it at, and a rotation square/direction)
     def readMove(self, move):
         offsetx = 0
         offsety = 0
@@ -93,49 +106,57 @@ class Pentago:
         coordinates[1] += offsetx
         return [self.player, (coordinates[0], coordinates[1]), rotate]
 
+    #process a player turn and return the move (both the one for the board and the one the player input)
     def playerTurn(self):
-        move = self.readMove(input("Enter Move: ").upper())
+        inmove = input("Enter Move: ").upper()
+        move = self.readMove(inmove)
         self.board.place(self.player, (move[1][0], move[1][1]))
         if self.board.squareEmpty(int(move[2][0])):
             move[2] = "0*"
         else:
             self.board.rotateSquare(int(move[2][0]), move[2][1])
-        return move
+        return (move, inmove)
 
+    #Runs the main game loop for a game of pentago. Sets up the basic features of the game, 
+    #like who uses what token and who goes first, then runs the game until a winner is found
     def gameLoop(self):
+        out = open("Output.txt", "w")
         self.player = input("Do you want (w)hite or (b)lack? ").lower()
         while (self.player != "w" and self.player != "b"):
             print("Invalid input! Please try again.")
             self.player = input("Do you want (w)hite or (b)lack? ")
         if self.player == "b":
             self.ai = "w"
+        out.write("Player Token: %s\n" % self.player)
+        out.write("AI Token: %s\n" % self.ai)
         choice = input("Do you want to go first (1) or second (2)? ")
         while choice!="1" and choice!="2":
             print("Invalid input! Please try again.")
             choice = input("Do you want to go first (1) or second (2)? ")
+
         self.currentTurn = "Player"
         if choice == "2":
             self.currentTurn = "AI"
+
         ai = PentagoAi(PentagoTree(self.board, self.ai), self.board, self.ai)
         while not(self.gameOver() or self.board.boardFull()):#while game isnt over and board isnt full
-            self.board.printBoard()
+            self.board.printBoard(out)
             if self.currentTurn == "Player":
                 playermove = self.playerTurn()
+                out.write("Player Move: %s\n" % playermove[1])
                 if not(ai.atLeafLevel):
-                    ai.processPlayerMove(playermove)
+                    ai.processPlayerMove(playermove[0])#Ai updates its tree based on the move the player made
                 self.currentTurn = "AI"
             else:
                 if(ai.atLeafLevel):
-                    print("AI is thinking...")
-                    ai.setUp()
-                ai.makeMove()
+                    ai.setUp()#if the tree is exhausted, generate a new one from current state
+                aimove = ai.makeMove()
+                print("AI move: %s" % aimove)
+                out.write("AI move: %s\n" % aimove)
                 self.currentTurn = "Player"
         print("%s wins!" % self.winner)
+        out.write("%s wins!\n" % self.winner)
+        out.close()
             
 if __name__ == "__main__":
     game = Pentago()
-    #board = PentagoBoard()
-    #board.place("w", (0,0))
-    #board.place("b", (0,1))
-    #tree = PentagoTree(board, "b")
-    #print(tree.stateValue(board))
