@@ -19,7 +19,9 @@ class PentagoAi:
         self.tree.generateTree(2)#create nodes for tree
         self.tree.initChildStateValues()#calculate the minmax for leaf level nodes
         self.tree.calculateMinmaxVals(self.tree.head)#run minmax algorithm
+        #print(self.treeSize())
         self.prune(self.tree.head, self.tree.head.alpha, self.tree.head.beta)#run alpha-beta pruning
+        #print(self.treeSize())
         self.atLeafLevel = False
 
     #update the tree with the move the player made
@@ -89,7 +91,7 @@ class PentagoAi:
     #a recursive implementation of the ab pruning algorithm
     def prune(self, node:PentagoTreeNode, inalpha, inbeta):
         if node.children == []:#base case
-            return node.minmax#return nodes minmax val if at leaf level
+            return node.minmax#return node's minmax val if at leaf level
         else:
             #inherit parent's ab values
             node.alpha = inalpha
@@ -106,3 +108,10 @@ class PentagoAi:
                     break
                 idx += 1
             return node.minmax
+    
+    def treeSize(self):
+        cnt = 0
+        cnt += len(self.tree.head.children)
+        for node in self.tree.head.children:
+            cnt += len(node.children)
+        return cnt
